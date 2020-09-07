@@ -88,7 +88,7 @@
       <div class="section">
         <div class="sec-title"><span>大咖问股</span></div>
         <ul class="askStock">
-          <li v-for="(item,index) in askStock" @click="goPage('qz.html?v=2')" v-if="index<2">
+          <li v-for="(item,index) in askStock" @click="goPage('/qz?v=2')" v-if="index<2">
             <div class="user-box">
               <img :src="item.QueUserImage" class="user-avator" />
               <span class="user-name">{{item.QueTrueName? item.QueTrueName:item.QueUserID}}</span>
@@ -102,7 +102,7 @@
                 <img :src="item.UserImage" class="tec-avator" />
                 <span class="tec-name">{{item.TrueName}}</span>
               </div>
-              <div class="audio" :class="playId==item.AnswerID ? 'active':''" @click="playAudio(item.AnswerID)"  v-if="item.AnswerRecord">
+              <div class="audio" :class="playId==item.AnswerID ? 'active':''"  v-if="item.AnswerRecord">
                 <audio :id="item.AnswerID">
                   <source :src="item.AnswerRecord" type="audio/ogg"></source>
                 </audio>
