@@ -75,7 +75,7 @@
 
       <!--工作室-->
      
-		<div class="swiper-container banner-sfk">
+		<div class="swiper-container banner-sfk" v-if="!studio">
 		  <div class="swiper-wrapper">
 		    <div class="swiper-slide" v-for="(item,index) in studio" :key="index" >
 		      <img :src="item.RecomImgUrl">
@@ -121,9 +121,9 @@
       <!--最新情报-->
       <div class="section">
         <div class="sec-title"><span>最新情报</span></div>
-        <ul class="qb-ul">
+        <ul class="qb-ul" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="50">
           <li v-for="item in newsList" @click="showMore(item)" :class="{'on':item.active}">
-            <div class="qb-info"><span class="time">{{item.Date.substr(11,5)}}</span>{{item.Abstract}}</div>
+            <div class="qb-info"><span class="time">{{item.Date | qbfilter}}</span>{{item.Abstract}}</div>
           </li>
         </ul>
       </div>
@@ -136,6 +136,7 @@
 
     import {reqSwiper,reqLijian,reqStudio,reqDaKaWenStock,reqAppInfoMsg} from "../../api";
 	import Swiper from 'swiper'
+
     export default {
       data () {
         return {
@@ -144,10 +145,11 @@
           newsList:'',
           recommend:'',
           studio:'',
-       
           askStock:'',
           play:false,
-          playId:''
+          playId:'',
+          loading:false,
+          page:1
         }
       },
       mounted (){
@@ -156,16 +158,18 @@
 
         reqStudio().then(res =>{
           this.studio=res.data
-          var mySwiper= new Swiper('.banner-sfk',{
-             direction:"horizontal",
-             speed: 100,
-             autoplay: {// 自动滑动
-               delay: 2000, //1秒切换一次
-               disableOnInteraction: false
-             },
-             pagination: {// 如果需要分页器
-               el: '.swiper-pagination'
-             },
+          new Swiper('.banner-sfk',{
+              spaceBetween: 0,
+              centeredSlides: true,
+
+              autoplay: {
+                  delay: 2500,
+                  disableOnInteraction: false,
+              },
+              pagination: {
+                  el: '.swiper-pagination',
+                  clickable: true,
+              },
              observer: true, // 启动动态检查器(OB/观众/观看者)
              observeParents: false // 修改swiper的父元素时，自动初始化swiper
            })
@@ -176,11 +180,9 @@
           this.askStock=res.data
         })
 
-        reqAppInfoMsg().then(res =>{
+        reqAppInfoMsg('',this.page).then(res =>{
           this.newsList=res.data
         })
-
-
 
       },
       methods:{
@@ -191,31 +193,50 @@
           reqSwiper().then(res =>{
             this.banner=res.data
             this.$nextTick(() => {
-              this.initSwiper()
+                new Swiper('#banner',{
+                    direction:"horizontal",
+                    speed: 100,
+                    autoplay: {// 自动滑动
+                        delay: 2000, //1秒切换一次
+                        disableOnInteraction: false
+                    },
+                    pagination: {// 如果需要分页器
+                        el: '.swiper-pagination'
+                    },
+                    observer: true, // 启动动态检查器(OB/观众/观看者)
+                    observeParents: false // 修改swiper的父元素时，自动初始化swiper
+                })
             })
-          })
-        },
-        initSwiper(){
-         var mySwiper= new Swiper('#banner',{
-            direction:"horizontal",
-            speed: 100,
-            autoplay: {// 自动滑动
-              delay: 2000, //1秒切换一次
-              disableOnInteraction: false
-            },
-            pagination: {// 如果需要分页器
-              el: '.swiper-pagination'
-            },
-            observer: true, // 启动动态检查器(OB/观众/观看者)
-            observeParents: false // 修改swiper的父元素时，自动初始化swiper
           })
         },
         getLijian(){
           reqLijian().then(res =>{
             this.recommend=res.data
           })
+        },
+        loadMore(){
+            this.loading = true;
+            setTimeout(() => {
+                this.page++
+                reqAppInfoMsg('',this.page).then(res =>{
+                    this.newsList=this.newsList.concat(res.data)
+                })
+                this.loading = false;
+            }, 1000);
+        },
+          showMore(item){
+              if(item.active){
+                  Vue.set(item,'active',false)
+              }else{
+                  Vue.set(item,'active',true)
+              }
+          }
+      },
+        filters:{
+            qbfilter(val){
+                return val.substr(11,5)
+            }
         }
-      }
     }
 </script>
 

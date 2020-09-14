@@ -15,4 +15,14 @@ export const reqSwiper = () => ajax(BASE_URL+'/GetHomeBanner') //轮播图
 export const reqLijian = () => ajax(BASE_URL+'/GetLiJian') //力荐
 export const reqStudio = () => ajax(BASE_URL+'/GetStudio') //工作室
 export const reqDaKaWenStock = () => ajax(BASE_URL+'/GetDaKaWenStock') //大咖问股
-export const reqAppInfoMsg = () => ajax(BASE_URL+'/GetAppInfoMsg') //最新情报
+export const reqAppInfoMsg = (token,pageindex) => ajax(BASE_URL+'/GetAppInfoMsg',{token,pageindex}) //最新情报
+
+
+/*特训*/
+export  const reqTeaFilterList = () => ajax(BASE_URL+'/GetFxgTeacher') //特训老师列表
+export  const reqTxList = (Teaid,pageindex) => ajax(BASE_URL+'/GetFxgCollegeList',{Teaid,pageindex}) //特训视频列表
+
+
+/*圈子*/
+export const reqGetTeaNote = (token,type,pageindex) => ajax(BASE_URL+'/GetTeaNote',{token,type,pageindex}) //笔记
+export const reqGetJpk = () =>ajax(BASE_URL+'/GetMyPrivLesson') //精品课

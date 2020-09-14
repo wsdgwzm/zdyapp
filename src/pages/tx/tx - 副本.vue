@@ -3,7 +3,7 @@
         <HeaderTop title="特训">
             <span slot="back"  class="back"></span>
         </HeaderTop>
-      <div class="content"  v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="30">
+      <div class="content" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="30">
           <div class="banner"><img src="../../common/images/1.png"></div>
           <div class="filter-box">
               <span class="title">精选课程</span>
@@ -13,8 +13,8 @@
               </div>
               <div class="filter-list" v-if="show">
                   <ul class="filter-bd">
-                      <li @click="list()"><img class="avator" src="../../common/images/1.png" ><div class="lsname">全部</div></li>
-                      <li v-for="item in teaList" @click="list(item.TeaID)">
+                      <li @click="txlist()"><img class="avator" src="../../common/images/1.png" ><div class="lsname">全部</div></li>
+                      <li v-for="item in teaList" @click="txlist(item.TeaID)">
                           <img class="avator" :src="'http://qijios.xinlande.com.cn'+item.UserImage" >
                           <div class="lsname">{{item.UserName}}</div>
                       </li>
@@ -22,17 +22,17 @@
                   </ul>
               </div>
           </div>
+            <CourseList></CourseList>
 
-          <VideoList :id="vid" ref="mychild"></VideoList>
       </div>
     </div>
 
 </template>
 
 <script>
-  import {reqTeaFilterList} from "../../api";
+  import {reqTeaFilterList,reqTxList} from "../../api";
   import  HeaderTop  from "../../components/header/Header"
-  import  VideoList  from "../../components/videoList/videoList"
+  import  CourseList from "../../components/videoList/videoList"
   export default {
    data(){
       return{
@@ -42,8 +42,7 @@
           tid:'',
           page:0,
           loading:false,
-          token:'',
-          vid:''
+          token:''
       }
     },
     mounted(){
@@ -56,15 +55,16 @@
         toggleFilter(){
             this.show=!this.show
         },
-        list(t){
-            this.show=false
-            this.vid=t
-            this.$refs.mychild.txlist(t);
-        },
-        loadMore(){
-            this.show=false
-            this.$refs.mychild.loadMore(this.vid);
 
+        loadMore(){
+            this.loading = true;
+            this.show=false
+            this.page++
+            reqTxList(this.tid,this.page).then(res =>{
+                console.log(this.page)
+                this.texun=this.texun.concat(res.data)
+            })
+            this.loading = false;
         },
         goPage(url,id){
             if(this.token){
@@ -82,7 +82,7 @@
     },
     components:{
         HeaderTop,
-        VideoList
+        CourseList
     }
   }
 </script>

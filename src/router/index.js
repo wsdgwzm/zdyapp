@@ -6,12 +6,17 @@ import tx from '../pages/tx/tx'
 import live from '../pages/live/live'
 import userCenter from '../pages/usercenter/usercenter'
 import login from '../pages/login/login'
+import classIntro from '../pages/classIntro/classIntro'
 
 Vue.use(Router)
 
 export default new Router({
   mode:'history',
   routes: [
+      {
+          path: '/',
+          redirect: '/index'
+      },
     {
       path: '/index',
       name: 'index',
@@ -60,9 +65,11 @@ export default new Router({
         showFooter:false
       }
     },
-    {
-      path: '/',
-      redirect: '/index'
-    }
+      {
+        path:'/classIntro',
+        name:'classIntro',
+        component:classIntro
+      }
+
   ]
 })

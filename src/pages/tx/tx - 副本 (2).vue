@@ -3,7 +3,7 @@
         <HeaderTop title="特训">
             <span slot="back"  class="back"></span>
         </HeaderTop>
-      <div class="content"  v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="30">
+      <div class="content" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="30">
           <div class="banner"><img src="../../common/images/1.png"></div>
           <div class="filter-box">
               <span class="title">精选课程</span>
@@ -13,8 +13,8 @@
               </div>
               <div class="filter-list" v-if="show">
                   <ul class="filter-bd">
-                      <li @click="list()"><img class="avator" src="../../common/images/1.png" ><div class="lsname">全部</div></li>
-                      <li v-for="item in teaList" @click="list(item.TeaID)">
+                      <li @click="txlist()"><img class="avator" src="../../common/images/1.png" ><div class="lsname">全部</div></li>
+                      <li v-for="item in teaList" @click="txlist(item.TeaID)">
                           <img class="avator" :src="'http://qijios.xinlande.com.cn'+item.UserImage" >
                           <div class="lsname">{{item.UserName}}</div>
                       </li>
@@ -23,16 +23,32 @@
               </div>
           </div>
 
-          <VideoList :id="vid" ref="mychild"></VideoList>
+          <div class="course-list" >
+              <div class="course-item" v-for="(item,index) in texun" :key="index" @click="goPage(item.VideoUrl,item.ClassID)">
+                  <div class="course-hd">
+                      <i v-if="item.IsPay==0" class="free"></i>
+                      <img :src="item.ClassImage" />
+                      <div class="title">{{item.ClassDesc}}</div>
+                  </div>
+                  <div class="course-tec">
+                      <img :src="item.UserImage" />
+                      <span class="tec-name">{{item.UserName}}</span>
+                  </div>
+                  <div class="course-bot">
+                      <span class="time">{{item.RegTime}}</span>
+                      <span class="counts">{{item.StuCount}} 播放</span>
+                  </div>
+              </div>
+
+          </div>
       </div>
     </div>
 
 </template>
 
 <script>
-  import {reqTeaFilterList} from "../../api";
+  import {reqTeaFilterList,reqTxList} from "../../api";
   import  HeaderTop  from "../../components/header/Header"
-  import  VideoList  from "../../components/videoList/videoList"
   export default {
    data(){
       return{
@@ -42,8 +58,7 @@
           tid:'',
           page:0,
           loading:false,
-          token:'',
-          vid:''
+          token:''
       }
     },
     mounted(){
@@ -56,14 +71,26 @@
         toggleFilter(){
             this.show=!this.show
         },
-        list(t){
+        txlist(id){
+            this.tid=id
             this.show=false
-            this.vid=t
-            this.$refs.mychild.txlist(t);
+            this.page=1
+            reqTxList(this.tid).then(res =>{
+                console.log(this.page)
+                this.texun=res.data
+            })
         },
         loadMore(){
+            this.loading = true;
             this.show=false
-            this.$refs.mychild.loadMore(this.vid);
+            this.page++
+            reqTxList(this.tid,this.page).then(res =>{
+                console.log(this.page)
+                this.texun=this.texun.concat(res.data)
+            })
+            this.loading = false;
+
+
 
         },
         goPage(url,id){
@@ -81,8 +108,7 @@
         }
     },
     components:{
-        HeaderTop,
-        VideoList
+        HeaderTop
     }
   }
 </script>
@@ -179,5 +205,82 @@
 
 
 
+    /* 特训列表 */
+    .course-list{
+        background: #fff;
+        overflow: auto;
+        padding: 0.2rem 0 0.2rem 0.3rem;
+        margin-bottom: 1rem;
 
+    }
+    .course-list .course-item{
+        width: 3.2rem;
+        float: left;
+        margin: 0 .5rem 0.1rem 0;
+    }
+    .course-list .course-item:nth-child(2n){
+        margin-right: 0;
+    }
+    .course-list .course-item .course-hd{
+        width: 100%;
+        height: 2.3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .course-list .course-item .course-hd img{
+        width: 100%;
+        height: 100%;
+    }
+    .course-list .course-item .course-hd i{
+        width: 0.7rem;
+        height: 0.35rem;
+        display: block;
+        position: absolute;
+        top:0;
+        right:0;
+        z-index: 11;
+    }
+    .course-list .course-item .course-hd i.free{
+        background: url(../../common/images/live/icon-free.png) no-repeat center center;
+        background-size: 100% 100%;
+    }
+    .course-list .course-item .course-hd .title{
+        position: absolute;
+        bottom:0;
+        right:0;
+        z-index: 11;
+        width: 100%;
+        height: 0.35rem;
+        line-height: 0.35rem;
+        padding: 0 0.2rem;
+        box-sizing: border-box;
+        color: #fff;
+        font-size: 0.2rem;
+        background: rgba(0,0,0,0.6);
+    }
+    .course-list .course-item .course-tec{
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        height: 0.5rem;
+        line-height: 0.5rem;
+        font-size: 0.26rem;
+    }
+    .course-list .course-item .course-tec img{
+        width: 0.3rem;
+        height: 0.3rem;
+        border-radius: 50%;
+        margin-right: 0.1rem;
+    }
+    .course-list .course-item .course-bot{
+        height: 0.35rem;
+        line-height: 0.35rem;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.22rem;
+        color:  #999;
+    }
 </style>
