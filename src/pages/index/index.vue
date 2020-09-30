@@ -1,10 +1,10 @@
 <template>
   <div style="background: #f0f0f0">
     <div class="header">
-      <a href="myNews.html" class="news"><i></i>消息</a>
-      <span class="kefu"><i></i>客服</span>
+      <a href="newsList.html" class="news"><i></i>情报</a>
+      <span class="kefu" @click="kefu()"><i></i>客服</span>
       <img src="./images/index/logo.png" class="logo" >
-      <span class="sys"><i></i>扫码</span>
+      <!--<span class="sys"><i></i>扫码</span>-->
     </div>
     <div class="content">
 
@@ -18,49 +18,49 @@
       </div>
       <div class="nav-box">
         <ul>
-          <li @click="goPage('qz.html?v=1')">
+          <li @click="goPage('/qz?v=1')">
             <a href="javascript:;">
               <div class="item-img"><img src="./images/index/nav01.png"><i class="icon_new"></i></div>
               <p class="item-name">热点研报</p>
             </a>
           </li>
-          <li @click="goPage('zhyb.html')">
+          <li @click="goPage('/zhyb')">
             <a href="javascript:;">
               <div class="item-img"><img src="./images/index/nav02.png"></div>
               <p class="item-name">智汇研报</p>
             </a>
           </li>
-          <li @click="goPage('live.html')">
+          <li @click="goPage('/qz?v=2')">
             <a href="javascript:;">
               <div class="item-img"><img src="./images/index/nav03.png"></div>
               <p class="item-name">涨牛学院</p>
             </a>
           </li>
-          <li @click="goPage('dkwg.html')">
+          <li @click="goPage('/dkwg')">
             <a href="javascript:;">
               <div class="item-img"><img src="./images/index/nav04.png"><i class="icon_hot"></i></div>
               <p class="item-name">大咖问股</p>
             </a>
           </li>
-          <li>
+          <li @click="goPage('/qz?v=0')">
             <a href="javascript:;">
               <div class="item-img"><img src="./images/index/nav05.png"></div>
-              <p class="item-name">超级短打</p>
+              <p class="item-name">投资笔记</p>
             </a>
           </li>
-          <li @click="goPage('qz.html?v=1')">
+          <li @click="goPage('/qz?v=1')">
             <a href="javascript:;">
               <div class="item-img"><img src="./images/index/nav06.png"></div>
               <p class="item-name">精品课</p>
             </a>
           </li>
-          <li @click="goPage('qz.html?v=3')">
+          <li @click="goPage('/qz?v=3')">
             <a href="javascript:;">
               <div class="item-img"><img src="./images/index/nav07.png"></div>
               <p class="item-name">锦囊</p>
             </a>
           </li>
-          <li @click="goPage('qz.html?v=4')">
+          <li @click="goPage('/qz?v=4')">
             <a href="javascript:;">
               <div class="item-img"><img src="./images/index/nav08.png"><i class="icon_jing"></i></div>
               <p class="item-name">投顾工作室</p>
@@ -70,14 +70,13 @@
       </div>
       <!--力荐-->
       <div class="lj-box">
-        <a :href="'https://qijiapp.xinlande.com.cn/cctv/AppPost/PostDetail?&type=0&PostID='+item.ThemeID" class="lj-item lj" v-for="item in recommend">{{item.ActTitle}}</a>
+        <a href="javascript:;" @click="goPage('https://qijiapp.xinlande.com.cn/cctv/AppPost/PostDetail?&type=0&PostID='+item.ThemeID,'lj')" class="lj-item lj" v-for="item in recommend">{{item.ActTitle}}</a>
       </div>
 
       <!--工作室-->
-     
 		<div class="swiper-container banner-sfk" v-if="!studio">
 		  <div class="swiper-wrapper">
-		    <div class="swiper-slide" v-for="(item,index) in studio" :key="index" >
+		    <div class="swiper-slide" v-for="(item,index) in studio" :key="index" @click="goPage('/teacherIndex?tuid='+item.TeaID+'&v=1','stduio')" >
 		      <img :src="item.RecomImgUrl">
 		    </div>
 		  </div>
@@ -127,7 +126,13 @@
           </li>
         </ul>
       </div>
-
+      <div class="kfBox">
+        <div class="kf-bd">是否确定拨打客服热线？<p>010-87417777</p></div>
+        <div class="kf-btn">
+          <span @click="closePop()">取消</span>
+          <span class="submit" @click="callPhone()">确定</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -136,7 +141,8 @@
 
     import {reqSwiper,reqLijian,reqStudio,reqDaKaWenStock,reqAppInfoMsg} from "../../api";
 	import Swiper from 'swiper'
-
+    import Vue from 'vue'
+    var layerPage;
     export default {
       data () {
         return {
@@ -186,9 +192,18 @@
 
       },
       methods:{
-        goPage(u){
-          this.$router.push(u)
-        },
+          goPage(e,i){
+              if(i){
+                  if(this.token){
+                      window.location.href=e
+                  }else{
+                      this.untils.toLogin()
+                  }
+              }else{
+                  window.location.href=e
+              }
+
+          },
         getswiper(){
           reqSwiper().then(res =>{
             this.banner=res.data
@@ -224,13 +239,41 @@
                 this.loading = false;
             }, 1000);
         },
-          showMore(item){
-              if(item.active){
-                  Vue.set(item,'active',false)
-              }else{
-                  Vue.set(item,'active',true)
-              }
-          }
+        showMore(item){
+            if(item.active){
+                Vue.set(item,'active',false)
+            }else{
+                Vue.set(item,'active',true)
+            }
+        },
+        kefu(){
+            layerPage=layer.open({
+                type:1,
+                title:' ',
+                area:['5.6rem','4.5rem'],
+                content:$(".kfBox")
+            })
+        },
+        callPhone(){
+            layer.close(layerPage)
+            layer.alert('(010)87417777',{
+                title:false,
+                closeBtn:false,
+                skin:'callphone',
+                btn:['取消','呼叫'],
+                btn1:function(){
+
+                    layer.closeAll()
+                },
+                btn2:function(){
+                    console.log(222)
+                    window.location.href="tel:(010)-87417777"
+                }
+            })
+        },
+        closePop(){
+            layer.closeAll()
+        }
       },
         filters:{
             qbfilter(val){
@@ -285,7 +328,7 @@
   }
   .header .kefu{
     position: absolute;
-    left: 1.2rem;
+    right: 0.3rem;
     top:0;
   }
   .header .kefu i{
@@ -630,4 +673,49 @@
     max-height: none;
     display: block;
   }
+
+
+
+  .kfBox{
+    width: 5.6rem;
+    height: 3.6rem;
+    background: #f0f0f0;
+    display: none;
+  }
+  .kfBox .kf-bd{
+    background: url(./images/index/icon-kf.png) no-repeat center 0.3rem;
+    background-size: 0.9rem 0.88rem;
+    padding-top: 1.3rem;
+    text-align: center;
+    font-size: 0.32rem;
+    line-height: 0.5rem;
+  }
+  .kfBox .kf-bd p{
+    color: #c01639;
+    font-size: 0.3rem;
+    padding: 0;
+    font-weight: bold;
+  }
+  .kfBox .kf-btn{
+    padding: 0 0.3rem;
+    margin-top: 0.2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+  .kfBox .kf-btn span{
+    width: 1.6rem;
+    height: 0.65rem;
+    line-height: 0.65rem;
+    border-radius: 0.1rem;
+    display: block;
+    text-align: center;
+    color: #fff;
+    background: #acacac;
+  }
+  .kfBox .kf-btn span.submit{
+    background: #c01639;
+  }
+
+
 </style>

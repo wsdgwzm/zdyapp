@@ -7,6 +7,7 @@ import live from '../pages/live/live'
 import userCenter from '../pages/usercenter/usercenter'
 import login from '../pages/login/login'
 import classIntro from '../pages/classIntro/classIntro'
+import feedBack from '../pages/feedBack/feedBack'
 
 Vue.use(Router)
 
@@ -69,6 +70,11 @@ export default new Router({
         path:'/classIntro',
         name:'classIntro',
         component:classIntro
+      },
+      {
+          path:'/feedBack',
+          name:'feedBack',
+          component:feedBack
       }
 
   ]

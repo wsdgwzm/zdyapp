@@ -5,102 +5,159 @@
         </mt-navbar>
         <mt-tab-container v-model="active" id="page" swipeable>
             <!--笔记-->
-            <mt-tab-container-item id="0" v-infinite-scroll="noteMore" infinite-scroll-disabled="loading" infinite-scroll-distance="30">
-                <div class="qz-title noborder">
-                    <div class="title-bd"><img src="./images/qz/icon_tj.png" />推荐笔记</div>
-                </div>
-                <div class="section">
-                    <div class="tjbj-list">
-                        <a href="javascript:;" class="tjbj-item" v-for="item in tjNote"  @click="post('https://qijiapp.xinlande.com.cn/cctv/AppPost/NoteDetail',{PostID:item.PostID,token:token})">
-                            <span class="tjbj-title">{{item.PostTitle}}</span>
-                            <span class="time">{{item.TrueName}} {{item.RegTime}}</span>
-                        </a>
+            <mt-tab-container-item id="0" >
+                <div v-if="active =='0'" v-infinite-scroll="noteMore" infinite-scroll-disabled="loading" infinite-scroll-distance="30">
+                    <div class="qz-title noborder">
+                        <div class="title-bd"><img src="./images/qz/icon_tj.png" />推荐笔记</div>
+                    </div>
+                    <div class="section">
+                        <div class="tjbj-list">
+                            <a href="javascript:;" class="tjbj-item" v-for="item in tjNote"  @click="post('https://qijiapp.xinlande.com.cn/cctv/AppPost/NoteDetail',{PostID:item.PostID,token:token})">
+                                <span class="tjbj-title">{{item.PostTitle}}</span>
+                                <span class="time">{{item.TrueName}} {{item.RegTime}}</span>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- 最新笔记 -->
+                    <div class="qz-title noborder">
+                        <div class="title-bd"><img src="./images/qz/icon_zx.png" />最新笔记</div>
+                    </div>
+                    <div class="section">
+                        <ul class="bj-nav">
+                            <li :class="noteCur==-1 ? 'active':''" @click="noteMore(-1)">全部</li>
+                            <li :class="noteCur==0 ? 'active':''" @click="noteMore(0)">我的关注</li>
+                        </ul>
+                        <div class="zxbj-list">
+                            <div class="zxbj-item" v-for="(item,index) in noteList" @click="post('https://qijiapp.xinlande.com.cn/cctv/AppPost/NoteDetail',{PostID:item.PostID,token:token})">
+                                <div class="zxbj-hd">
+                                    <div class="tec-box">
+                                        <img :src="item.UserImage" class="tec-avator" />
+                                        <div class="tec-box-bd">
+                                            <div class="tec-name">{{item.TrueName}}</div>
+                                            <div class="time">{{item.RegTime}}</div>
+                                        </div>
+                                    </div>
+                                    <span class="jb" @click.stop="clickJb(item.PostID)">举报</span>
+                                </div>
+                                <div class="zxbj-title">{{item.PostTitle}}</div>
+                                <div class="zxbj-info">{{item.PostContent}}</div>
+                                <div class="zxbj-bot">
+                                    <span class="view">{{item.ReadCount}}</span>
+                                    <span class="comment">{{item.ReplyCount}}</span>
+                                    <span class="like" :class="item.IsClick !=0 ? 'on':''" @click.stop="bjClickLike(item.PostID,item.IsClick,index)">{{item.ClickCount}}</span>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
-                <!-- 最新笔记 -->
-                <div class="qz-title noborder">
-                    <div class="title-bd"><img src="./images/qz/icon_zx.png" />最新笔记</div>
+            </mt-tab-container-item>
+            <!--精品课-->
+            <mt-tab-container-item id="1"  >
+                <div v-if="active =='1'" v-infinite-scroll="znxyMore" infinite-scroll-disabled="loading" infinite-scroll-distance="30">
+                    <div class="qz-title" style="margin-top: 0;">
+                        <div class="title-bd"><img src="./images/qz/icon_yb_jpk_rm.png" />热门精品课</div>
+                    </div>
+                    <div class="jpk-list">
+                        <div class="jpk-item" v-for="(item,index) in studio" :key="index" @click="goJpkPage('/classIntro',item)">
+                            <div class="jpk-hd">
+                                <div class="jpk-title"  :class="item.IsPay==1? 'rm':'mf'">{{item.Title}}</div>
+                                <a href="javascript:;"  @click.stop="jpkPop(item)" class="jpk-jj">课程简介</a>
+                            </div>
+                            <img :src="item.ImageUrl" class="jpk-img" />
+                            <div class="jpk-bot">
+                                <div class="jpk-tec">
+                                    <img :src="item.UserImage" class="tec-avator" >
+                                    <span class="tec-name">{{item.TrueName}}</span>
+                                </div>
+                                <div class="jpk-btn" v-if="item.IsPay==0">
+                                    <span @click.stop="yytkPop(item.PLID)" class="yytk"></span>
+                                    <span @click.stop="pswPop(item.LessonPwd)" class="jrgk"></span>
+                                </div>
+                                <div class="jpk-btn" v-else-if="item.IsPay==1&&item.PurID==0"><span class="ffgk"></span></div>
+                                <div class="jpk-btn" v-else><span class="ygm"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="qz-title" >
+                        <div class="title-bd"><img src="../live/images/live/icon_tx.png" />涨牛学院</div>
+                        <a href="tx.html" class="more" ></a>
+                    </div>
+                    <VideoList :id="vid" ref="mychild"></VideoList>
                 </div>
-                <div class="section">
-                    <ul class="bj-nav">
-                        <li :class="noteCur==-1 ? 'active':''" @click="noteMore(-1)">全部</li>
-                        <li :class="noteCur==0 ? 'active':''" @click="noteMore(0)">我的关注</li>
-                    </ul>
-                    <div class="zxbj-list">
-                        <div class="zxbj-item" v-for="item in noteList" @click="post('https://qijiapp.xinlande.com.cn/cctv/AppPost/NoteDetail',{PostID:item.PostID,token:token})">
-                            <div class="zxbj-hd">
+            </mt-tab-container-item>
+
+
+            <mt-tab-container-item id="2" >
+                <div v-if="active =='2'" v-infinite-scroll="qaList" infinite-scroll-disabled="loading" infinite-scroll-distance="30">
+                    <div class="qz-title">
+                        <div class="title-bd"><img src="./images/qz/icon_zxdk.png" />在线大咖</div>
+                        <a href="dkwg.html" class="more"></a>
+                    </div>
+                    <div class="zxdk-list">
+                        <div class="zxdk-item" v-for="item in dklist" @click="askPop(item.QuesExpend,item.UserID)">
+                            <div class="dk-info">
+                                <img class="dk-avator" :src="item.UserImage" />
+                                <div class="dk-info-bd">
+                                    <div class="dk-name">{{item.TrueName}}</div>
+                                    <div class="dk-text">共解答<span>{{item.AnswerCount}}</span>条问股</div>
+                                </div>
+                            </div>
+                            <div class="dk-ask">向TA提问</div>
+                        </div>
+                    </div>
+                    <div class="qz-title">
+                        <div class="title-bd"><img src="./images/qz/icon_jcwd.png" />精彩回答</div>
+                    </div>
+                    <ul class="askStock">
+                        <li v-for="(item,index) in askStock" @click="goAskPage('askInfo.html?tuid='+item.AnsUserID,item)" >
+                            <div class="user-box">
+                                <img :src="item.QueUserImage" class="user-avator" />
+                                <span class="user-name">{{item.QueTrueName? item.QueTrueName:item.QueUserID}}</span>
+                            </div>
+                            <div class="ask-info">
+                                {{item.QuestionContent}}
+                            </div>
+                            <div class="answer-box">
                                 <div class="tec-box">
                                     <img :src="item.UserImage" class="tec-avator" />
-                                    <div class="tec-box-bd">
-                                        <div class="tec-name">{{item.TrueName}}</div>
-                                        <div class="time">{{item.RegTime}}</div>
-                                    </div>
+                                    <span class="tec-name">{{item.TrueName}}</span>
                                 </div>
-                                <span class="jb">举报</span>
+                                <div :class="['audio',!item.IsListen || 'off',playId==item.AnswerID ? 'active':'']"  @click.stop="playAudio(item.AnswerID,item.IsListen,item.AnsUserID,item.AnswerID,index,item.ListenExpend)"  v-if="item.AnswerRecord">
+                                    <audio :id="item.AnswerID">
+                                        <source :src="item.AnswerRecord" type="audio/ogg"></source>
+                                    </audio>
+                                </div>
+                                <span class="duration" v-if="item.AnswerRecord">{{item.RecordTime}}</span>
+                                <div class="answer-info" v-if="item.AnswerDesc">{{item.AnswerDesc}}</div>
                             </div>
-                            <div class="zxbj-title">{{item.PostTitle}}</div>
-                            <div class="zxbj-info">{{item.PostContent}}</div>
-                            <div class="zxbj-bot">
-                                <span class="view">{{item.ReadCount}}</span>
-                                <span class="comment">{{item.ReplyCount}}</span>
-                                <span class="like" :class="item.IsClick ==1 ? 'on':''">{{item.ClickCount}}</span>
+                            <div class="bot">
+                                <span class="icon-zan " :class="item.IsClick!=0 ? 'on':''" @click.stop="askLike(item.AnswerID,item.IsClick,index)">{{item.ClickCount}}</span>
+                                <span class="time">{{item.RegTime}}</span>
                             </div>
-                        </div>
-
-                    </div>
+                        </li>
+                    </ul>
                 </div>
-            </mt-tab-container-item>
 
-            <!--精品课-->
-            <mt-tab-container-item id="1">
-                <div class="qz-title" style="margin-top: 0;">
-                    <div class="title-bd"><img src="./images/qz/icon_yb_jpk_rm.png" />热门精品课</div>
-                </div>
-                <div class="jpk-list">
-                    <div class="jpk-item" v-for="(item,index) in studio" :key="index" @click="goPage('/classIntro',item)">
-                        <div class="jpk-hd">
-                            <div class="jpk-title"  :class="item.IsPay==1? 'rm':'mf'">{{item.Title}}</div>
-                            <a href="javascript:;"  @click.stop="jpkPop(item)" class="jpk-jj">课程简介</a>
-                        </div>
-                        <img :src="item.ImageUrl" class="jpk-img" />
-                        <div class="jpk-bot">
-                            <div class="jpk-tec">
-                                <img :src="item.UserImage" class="tec-avator" >
-                                <span class="tec-name">{{item.TrueName}}</span>
-                            </div>
-                            <div class="jpk-btn" v-if="item.IsPay==0">
-                                <span @click.stop="yytkPop(item.PLID)" class="yytk"></span>
-                                <span @click.stop="pswPop(item.LessonPwd)" class="jrgk"></span>
-                            </div>
-                            <div class="jpk-btn" v-else-if="item.IsPay==1&&item.PurID==0"><span class="ffgk"></span></div>
-                            <div class="jpk-btn" v-else><span class="ygm"></span></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="qz-title" >
-                    <div class="title-bd"><img src="../live/images/live/icon_tx.png" />涨牛学院</div>
-                    <a href="tx.html" class="more" ></a>
-                </div>
-                <VideoList :id="vid" ref="mychild"></VideoList>
-            </mt-tab-container-item>
-
-
-            <mt-tab-container-item id="2">
-               333
             </mt-tab-container-item>
 
 
             <mt-tab-container-item id="3">
-                444
+                <div v-if="active =='3'">
+                    444
+                </div>
             </mt-tab-container-item>
 
 
             <mt-tab-container-item id="4">
-                555
+                <div v-if="active =='4'">
+                    555
+                </div>
             </mt-tab-container-item>
         </mt-tab-container>
         <mt-popup v-model="jpkInfoPop" popup-transition="popup-fade" id="jpkPop" >
             <div class="jpkInfoPop">
+                <span class="close" @click="closePop()"></span>
                 <div class="intro-hd">
                     <img :src="jpkinfo.UserImage">
                     <div class="class-name">{{jpkinfo.TrueName}}</div>
@@ -117,6 +174,35 @@
                 </div>
             </div>
         </mt-popup>
+        <!--密码弹窗-->
+        <div class="popBox layui-layer-wrap" style="display: none;">
+            <span class="close"></span>
+            <img src="../../common/images/jpk/lock.jpg">
+            <input type="text" class="psw" v-model="jpkPwd" placeholder="请输入密码">
+            <p>如有疑问请致电客服热线：010-87417588</p>
+            <div class="popBtn" @click="viewJpk()">点击进入</div>
+        </div>
+
+        <!--预约成功-->
+        <div class="popSuccess layui-layer-wrap" style="display: none;">
+            <img src="../../common/images/jpk/icon-success.png">
+            <p>预约成功</p>
+            <div>客服将在24小时内与你联系 010-87417777</div>
+        </div>
+
+        <!-- 提问消耗钻石弹窗 -->
+        <div class="tw-pop" id="askPop">
+            <img src="./images/qz/tw.png" class="tw-img">
+            <div class="tw-text1">本次提问需消耗：<span>{{askDiamond}}</span>钻石</div>
+            <div class="tw-text2">当前可用余额：<span>{{Diamond}}</span>钻石</div>
+            <div class="tw-btn" @click="goPage('ask.html?teaid='+tid)">确定</div>
+        </div>
+        <div class="tw-pop" id="listen">
+            <img src="./images/qz/tw.png" class="tw-img">
+            <div class="tw-text1">本次偷听需消耗：<span>{{needDiamond}}</span>钻石</div>
+            <div class="tw-text2">当前可用余额：<span>{{Diamond}}</span>钻石</div>
+            <div class="tw-btn" @click="listenConfrim()">确定</div>
+        </div>
     </div>
 </template>
 
@@ -128,7 +214,11 @@
     Vue.component(TabContainer.name, TabContainer);
     Vue.component(TabContainerItem.name, TabContainerItem);
     Vue.component(Popup.name, Popup)
-    import {reqGetTeaNote,reqGetJpk} from "../../api";
+    import {
+                reqGetTeaNote,reqGetClickLike,
+                reqGetJpk,reqOrderRecord,
+                reqZxdk,reqQuestionList,reqQuesClickLike,reqQuesListen
+    } from "../../api";
     import  VideoList  from "../../components/videoList/videoList"
 
     export default {
@@ -158,27 +248,50 @@
                 ],
                 selected:'0',
                 active:'0',
+                token:'',
+                loading:false,
                 noteCur:-1,
                 tjNote:'',
                 noteList:[],
-                token:'',
-                loading:false,
                 notePage:0,
+                znxyPage:0,
+                askStock:[],
                 studio:'',
+                jpkPwd:'',
+                LessonPwd:'',
+                LessonID:'',
                 jpkinfo:'',
+                playState:false,
+                playId:'',
+                isplay:false,
+                znxyList:'',
                 vid:'',
-                jpkInfoPop:false
+                jpkInfoPop:false,
+                Diamond:'',
+                needDiamond:'',
+                param:'',
+                jnList:'',
+                teacherList:'',
+                vipCircle:'',
+                dklist:'',
+                tid:'',
+                askDiamond:'',
+                qaPage:0
             }
         },
         mounted(){
             this.token=this.untils.getCookie('token')
             reqGetTeaNote(this.token,1,1).then(res =>{
-                console.log(res.data)
                 if(res.code==1){
                     this.tjNote=res.data
                 }
             })
-            this.rmjpk()
+            console.log(this.$route.params)
+            if(this.untils.getQueryString("v")){
+                this.active=this.$route.query.v
+            }
+
+
         },
         methods:{
             tabChange(p){
@@ -201,12 +314,45 @@
                 })
                 this.loading=false
             },
+            bjClickLike(i,c,index){//笔记点赞
+                var that =this,t;
+                if(this.token){
+                    if(c==0){//点赞
+                        reqGetClickLike(this.token,i,1).then(res =>{
+                            console.log(res)
+                            if(res!=''){
+                                that.noteList[index].ClickCount++
+                                that.noteList[index].IsClick++
+                            }
+                        })
+
+                    }else{//取消点赞
+                        reqGetClickLike(this.token,i,0).then(res =>{
+                            console.log(res)
+                            if(res!=''){
+                                that.noteList[index].ClickCount--
+                                that.noteList[index].IsClick=0
+                            }
+                        })
+
+                    }
+                }else{
+                    this.untils.toLogin()
+                }
+            },
+            clickJb(hotid){//举报
+
+                if(this.token){
+                    window.location.href='feedBack?hotid='+hotid+'&module=2'
+                }else{
+                    this.untils.toLogin()
+                }
+            },
             rmjpk(){
                 reqGetJpk().then(res =>{
                     if(res.code==1){
                         this.studio=res.data
                     }
-
                 })
             },
             jpkPop(item){
@@ -214,6 +360,9 @@
                 setTimeout(()=>{
                     this.jpkInfoPop=true
                 },200)
+            },
+            closePop(){
+                this.jpkInfoPop=false
             },
             post(URL, PARAMS) {
                 if(this.token){
@@ -231,39 +380,211 @@
                     document.body.appendChild(temp_form);
                     temp_form.submit();
                 }else{
-                    layer.msg('查看更多优质信息，请先登录')
+                    this.untils.toLogin()
                 }
             },
-
             yytkPop(id){//预约听课弹窗
-                var that=this
                 console.log(id)
-                if(token){
-                    ajax_send(
-                        'get','http://qijios.xinlande.com.cn/app/apph5/AddOrderRecord',
-                        {token:token,plid:id},'json',function(res){
-                            console.log(res)
-                            if(res.code==1){
-                                layer.open({
-                                    type:1,
-                                    title:false,
-                                    closeBtn:false,
-                                    skin:'msg',
-                                    time:2000,
-                                    area:['5rem','1.5rem'],
-                                    content:$(".popSuccess")
-                                })
-                            }
-                        })
+                if(this.token){
+                    reqOrderRecord(this.token,id).then(res =>{
+                        console.log(res)
+                        if(res.code==1){
+                            layer.open({
+                                type:1,
+                                title:false,
+                                closeBtn:false,
+                                skin:'msg',
+                                time:2000,
+                                area:['5rem','1.6rem'],
+                                content:$(".popSuccess")
+                            })
+                        }
+                    })
+
                 }
                 else{
-                    layer.msg('查看更多优质信息，请先登录')
+                    this.untils.toLogin()
+                }
+            },
+            znxyMore(){
+                this.$refs.mychild.loadMore('')
+            },
+            goPage(u){
+                if(this.token){
+                    window.location.href=u
+                }else{
+                    this.untils.toLogin()
+                }
+            },
+            pswPop(p,i){//精品课观看密码弹窗
+                this.LessonPwd=p
+                this.LessonID=i
+                this.jpkPwd=''
+                layer.open({
+                    type:1,
+                    title:false,
+                    closeBtn:false,
+                    skin:'default',
+                    area:['5rem','4.5rem'],
+                    content:$(".popBox")
+                })
+            },
+            viewJpk(){//输入密码查看精品课
+                var jpkInfo=JSON.parse(this.untils.getCookie("jpkInfo"))
+                layer.closeAll()
+                if(this.jpkPwd==this.LessonPwd){
+                    this.untils.setCookie(this.LessonID,'true')
+                    window.location.href=jpkInfo.LiveUrl
+                }else{
+                    layer.msg("密码错误")
+                }
+            },
+            goJpkPage(u,item){//查看精品课
+                var LessonID=this.untils.getCookie(item.PLID)
+                this.untils.setCookie('jpkInfo',JSON.stringify(item))
+                if(this.token){
+                    if(LessonID){
+                        window.location.href=item.LiveUrl
+                    }else{
+                        this.pswPop(item.LessonPwd,item.PLID)
+                    }
+
+                }else{
+                    this.untils.toLogin()
+                }
+            },
+            getTList(){//在线大咖列表
+                var that=this
+                reqZxdk(this.token).then(res =>{
+                    if(res.code==1){
+                        that.dklist=res.data
+                    }
+                })
+
+            },
+            askPop(d,tid){//提问弹窗
+                if(this.token){
+                    this.tid=tid
+                    this.askDiamond=d
+                    layer.open({
+                        type:1,
+                        title:false,
+                        closeBtn:false,
+                        skin:'msg',
+                        shadeClose:true,
+                        area:['5.2rem','4.5rem'],
+                        content:$("#askPop")
+                    })
+                }else{
+                    this.untils.toLogin()
+                }
+            },
+            qaList(){//问答列表
+                this.qaPage++
+                reqQuestionList(this.token,this.qaPage).then(res =>{
+                    this.askStock=this.askStock.concat(res.data)
+                })
+
+            },
+            askLike(i,c,index){//问股点赞
+                if(c==0){//点赞
+                    reqQuesClickLike(this.token,i,2,1).then(res =>{
+                        if(res!=''){
+                            this.askStock[index].ClickCount++
+                            this.askStock[index].IsClick++
+                        }
+                    })
+                }else{//取消点赞
+                    reqQuesClickLike(this.token,i,2,0).then(res =>{
+                        this.askStock[index].ClickCount--
+                        this.askStock[index].IsClick=0
+                    })
+                }
+            },
+            playAudio(i,p,tid,rid,o,d){//播放偷偷听音频
+                if(this.token){
+                    this.param=[i,p,tid,rid,o,d]
+                    if(d!=0&&p==0){
+                        this.needDiamond=d
+                        layer.open({
+                            type:1,
+                            title:false,
+                            closeBtn:false,
+                            skin:'msg',
+                            shadeClose:true,
+                            area:['5.2rem','4.5rem'],
+                            content:$("#listen")
+                        })
+                    }else{
+                        this.listenConfrim()
+                    }
+                }else{
+                    this.untils.toLogin()
+                }
+
+            },
+            listenConfrim(){//记录偷偷听状态，是否听过
+                var i=this.param[0],
+                    p=this.param[1],
+                    tid=this.param[2],
+                    rid=this.param[3],
+                    o=this.param[4];
+                let audio= document.getElementById(i);
+
+                this.playState=!this.playState;
+                if(this.playState){
+                    audio.play()
+                    this.playId=i
+                }else{
+                    this.playId=''
+                    audio.pause()
+                }
+                layer.closeAll()
+                if(p==0){
+                    console.log("偷听")
+                    reqQuesListen(this.token,tid,rid).then(res =>{
+                        if(res.code==1){
+                            this.isplay=true
+                            this.askStock[o].IsListen=1
+                            this.Diamond=res.msg
+                            this.untils.setCookie('diamonds',res.msg)
+                        }
+                    })
+
+                }
+            },
+            goAskPage(u,item){//问股详情
+                if(this.token){
+                    this.untils.setCookie("askInfo",JSON.stringify(item))
+                    window.location.href=u
+                }else{
+                    this.untils.toLogin()
+
                 }
             },
         },
         watch: {
             active: function (val) {
                 this.selected = parseInt(val)
+                switch (this.selected){
+                    case 0:
+                        break;
+                    case 1:
+
+                        this.rmjpk()
+                        break;
+                    case 2:
+
+                        this.getTList()
+                        break;
+                    case 3:
+                        //this.rmjpk()
+                        break;
+                    case 4:
+
+                        //this.rmjpk()
+                        break;
+                }
             }
         },
         components:{
@@ -776,9 +1097,9 @@
 
     .popSuccess{
         width: 5rem;
-        height: 1.5rem;
+        height: 1.6rem;
         display: none;
-        padding-top: 0.32rem;
+        padding-top: 0.2rem;
         text-align: center;
         line-height: 0.45rem;
         background: rgba(0,0,0,0.6);
@@ -1363,26 +1684,36 @@
         padding-left: 1rem;
     }
     .jpkInfoPop .title.name span{
-        background: url(/src/common/images/jpk/icon-kc01.png) no-repeat 0.45rem center #ee8d2f;
+        background: url(../../common/images/jpk/icon-kc01.png) no-repeat 0.45rem center #ee8d2f;
         background-size: 0.36rem 0.42rem;
     }
     .jpkInfoPop .title.time span{
-        background: url(/src/common/images/jpk/icon-kc02.png) no-repeat 0.45rem center #ee8d2f;
+        background: url(../../common/images/jpk/icon-kc02.png) no-repeat 0.45rem center #ee8d2f;
         background-size: 0.46rem 0.42rem;
     }
     .jpkInfoPop .title.style span{
-        background: url(/src/common/images/jpk/icon-kc03.png) no-repeat 0.45rem center #ee8d2f;
+        background: url(../../common/images/jpk/icon-kc03.png) no-repeat 0.45rem center #ee8d2f;
         background-size: 0.42rem 0.42rem;
     }
     .jpkInfoPop .title.result span{
-        background: url(/src/common/images/jpk/icon-kc04.png) no-repeat 0.45rem center #ee8d2f;
+        background: url(../../common/images/jpk/icon-kc04.png) no-repeat 0.45rem center #ee8d2f;
         background-size: 0.38rem 0.41rem;
     }
     .jpkInfoPop .info{
         padding: 0 0.3rem;
         margin-bottom: 0.2rem;
     }
-
+    .jpkInfoPop .close{
+        background: url(../../common/images/close.png) no-repeat center center ;
+        background-size: 0.3rem 0.3rem;
+        background-position: 0 0;
+        width: 0.3rem;
+        height: 0.3rem;
+        display: block;
+        position: absolute;
+        top:0.3rem;
+        right:0.3rem
+    }
     .jpkClose.layui-layer .layui-layer-setwin .layui-layer-close2{
         background: url(/src/common//images/close.png) no-repeat center center ;
         background-size: 0.3rem 0.3rem;

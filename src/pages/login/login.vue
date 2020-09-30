@@ -7,14 +7,14 @@
       <div class="content">
 
         <div class="item" style="margin-top: 1.2rem;">
-          <input type="tel" maxlength="11" class="user" placeholder="请输入用户名" v-model="username" />
+          <input type="text" maxlength="11" class="user" placeholder="请输入用户名" v-model="username" />
         </div>
         <div class="item">
           <input type="password"  class="psw" placeholder="请输入密码"  v-model="psw"/>
         </div>
 
         <div class="logBtn" @click="login()">登陆</div>
-        <div class="tips " :class="checked? 'checked':''" @click="readCheckbox()">我已阅读并同意<a href="javascript:;">《隐私政策和用户注册协议》</a></div>
+        <div class="tips " :class="checked? 'checked':''" @click="readCheckbox()">我已阅读并同意<a href="javascript:;" @click.stop="goPage('policy.html')">《隐私政策和用户注册协议》</a></div>
         <div class="log-footer">
           <a href="editPassword.html" class="btn forget">忘记密码</a>
           <a href="register.html" class="btn reg">免费注册</a>
@@ -42,6 +42,9 @@
         readCheckbox(){
           this.checked= !this.checked
         },
+          goPage(u){
+              window.location.href=u
+          },
         encryptedData(publicKey,data){
           let encryptor= new JSEncrypt({default_key_size: 1024})
           encryptor.setPublicKey(publicKey)
@@ -55,6 +58,7 @@
             console.log(username)
             reqLogin(username,psw).then(res =>{
               if(res.code==1) {
+                  this.$store.dispatch('getToken',res.data.token)
                 this.untils.setCookie('token', res.data.token)
                 this.untils.setCookie('diamonds', res.data.topupnum)
                 this.$router.replace('/userCenter')

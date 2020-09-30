@@ -65,19 +65,6 @@
             this.show=false
             this.$refs.mychild.loadMore(this.vid);
 
-        },
-        goPage(url,id){
-            if(this.token){
-                ajax_send('get','http://qijios.xinlande.com.cn/app/apph5/AddVideoPlayRecord',
-                    {token:token,classid:id},'json',function(res){
-                        if(res.code==1){
-                            window.location.href=url
-                        }
-                    })
-            }else{
-                layer.msg('请先登录获取更多信息')
-            }
-
         }
     },
     components:{

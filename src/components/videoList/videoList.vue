@@ -20,7 +20,7 @@
 </template>
 
 <script>
-    import {reqTxList} from "../../api";
+    import {reqTxList,reqAddVideoPlayRecord} from "../../api";
     export default {
         props: {
             id: String
@@ -30,12 +30,14 @@
                 texun:[],
                 tid:'',
                 page:0,
+                token:'',
                 loading:false
             }
         },
         mounted(){
             console.log(this)
-            this.txlist(this.id)
+            this.token= this.untils.getCookie("token")
+           // this.txlist(this.id)
         },
         methods:{
             txlist(id){
@@ -55,8 +57,17 @@
                 })
                 this.loading = false;
             },
-            goPage(){
+            goPage(url,id){
+                if(this.token){
+                    reqAddVideoPlayRecord(this.token,id).then(res =>{
+                        if(res.code==1){
+                            window.location.href=url
+                        }
+                    })
 
+                }else{
+                    this.untils.toLogin()
+                }
             }
         }
     }

@@ -64,7 +64,13 @@ html,body{
   padding-top: 0.9rem;
 }
 
-
+.layui-layer.default,.layui-layer.msg{
+  background: transparent;
+  border-radius: 0.1rem;
+}
+.layui-layer.msg{
+  box-shadow: none;
+}
 
 
 
